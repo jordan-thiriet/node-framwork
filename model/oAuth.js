@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 var passwordHash = require('password-hash');
+var mail = require('../service/mail.js');
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema,
     model = module.exports;
@@ -173,6 +174,31 @@ model.updateUser = function (id, userUpdate, callback) {
 model.updatePassword = function (id, newPwd, callback) {
     var query = {password: passwordHash.generate(newPwd)};
     return model.update(id, query, callback);
+};
+
+/*
+ * Update password
+ */
+model.resetPassword = function (email, callback) {
+
+    function generatePassword() {
+        var length = 8,
+            charset = "abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+            retVal = "";
+        for (var i = 0, n = charset.length; i < length; ++i) {
+            retVal += charset.charAt(Math.floor(Math.random() * n));
+        }
+        return retVal;
+    }
+
+    var newPwd = generatePassword();
+    OAuthUsersModel.findOne({email: email},null, null, function (err, user) {
+        if (err || !user) return callback(err, user);
+        user.password = passwordHash.generate(newPwd);
+        user.save();
+        mail.sendMail(email, 'Reset Password', 'New password : '+newPwd);
+        return callback(null, user);
+    });
 };
 
 /*

@@ -1,43 +1,42 @@
 var express = require('express');
+var app = express();
+
 var socket_io    = require( "socket.io" );
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var oauthserver = require('oauth2-server');
 var mongoose = require('mongoose');
 
+var config = require('./config.json');
+
 //var routes = require('./routes/index');
 var user = require('./routes/user');
 var fitness = require('./routes/fitness');
+var publicRoute = require('./routes/public');
+
 var socket = require('./routes/socket');
 
-var app = express();
-
-var io = socket_io(8080);
+var io = socket_io(config.socketPort);
 app.io = io;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 
-var uristring = 'mongodb://localhost/node-framwork';
-
 // Makes connection asynchronously. Mongoose will queue up database
 // operations and release them when the connection is complete.
-mongoose.connect(uristring, function (err, res) {
+mongoose.connect(config.mongoserver, function (err, res) {
     if (err) {
-        console.log ('ERROR connecting to: ' + uristring + '. ' + err);
+        console.log ('ERROR connecting to: ' + config.mongoserver + '. ' + err);
     } else {
-        console.log ('Succeeded connected to: ' + uristring);
+        console.log ('Succeeded connected to: ' + config.mongoserver);
     }
-    require('./model/oAuth.js').saveClient(function (response) {
-        console.log(response);
-    });
 });
 
 app.oauth = oauthserver({
     model: require('./model/oAuth.js'),
     grants: ['password'],
-    accessTokenLifetime: 3600,
+    accessTokenLifetime: config.tokenLifetime,
     debug: true
 });
 
@@ -48,6 +47,7 @@ app.all('/oauth/v2/token', app.oauth.grant());
 
 app.use('/api/user', app.oauth.authorise(), user);
 app.use('/api/fitness', app.oauth.authorise(), fitness);
+app.use('/api/public', publicRoute);
 
 io.on("connection", socket);
 

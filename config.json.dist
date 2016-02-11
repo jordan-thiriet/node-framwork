@@ -1,0 +1,9 @@
+{
+    "socketPort": 8080,
+    "mongoserver": "mongodb://localhost/node-framwork",
+    "serviceMail": "Gmail",
+    "userMail": "",
+    "passwordMail": "",
+    "fromMail": "",
+    "tokenLifetime": 3600
+}
