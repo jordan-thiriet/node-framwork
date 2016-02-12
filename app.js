@@ -12,6 +12,7 @@ var config = require('./config.json');
 //var routes = require('./routes/index');
 var user = require('./routes/user');
 var fitness = require('./routes/fitness');
+var settings = require('./routes/settings');
 var publicRoute = require('./routes/public');
 
 var socket = require('./routes/socket');
@@ -47,6 +48,7 @@ app.all('/oauth/v2/token', app.oauth.grant());
 
 app.use('/api/user', app.oauth.authorise(), user);
 app.use('/api/fitness', app.oauth.authorise(), fitness);
+app.use('/api/settings', app.oauth.authorise(), settings);
 app.use('/api/public', publicRoute);
 
 io.on("connection", socket);

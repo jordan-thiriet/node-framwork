@@ -1,6 +1,6 @@
 var express = require('express');
 var oAuth = require('../model/oAuth.js');
-var fitness = require('../model/fitness.js');
+var settings = require('../model/settings.js');
 var router = express.Router();
 
 router.get('/',function (req, res, next) {
@@ -10,11 +10,11 @@ router.get('/',function (req, res, next) {
         if(err) {
             res.status(400).send({error: err});
         } else {
-            fitness.getAll(data.userId._id, function(err, fitness) {
+            settings.get(data.userId._id, function(err, setting) {
                 if(err) {
                     res.status(400).send({error: err});
                 } else {
-                    res.status(200).send(fitness);
+                    res.status(200).send(setting);
                 }
             });
         }
@@ -28,7 +28,8 @@ router.post('/',function (req, res, next) {
         if(err) {
             res.status(400).send({error: err});
         } else {
-            fitness.save(req.body, data.userId._id, function(err) {
+            req.body.userid = data.userId._id;
+            settings.save(req.body, function(err) {
                 if(err) {
                     res.status(500).send({error: err});
                 } else {
