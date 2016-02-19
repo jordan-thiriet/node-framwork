@@ -1,4 +1,5 @@
 var express = require('express');
+var fs = require('fs');
 var oAuth = require('../model/oAuth.js');
 var router = express.Router();
 
@@ -20,6 +21,14 @@ router.get('/:id',function (req, res, next) {
 });
 
 router.put('/:id',function (req, res, next) {
+    if(req.body.picture) {
+        var base64Data = req.body.picture.replace(/^data:image\/png;base64,/, "");
+
+        fs.writeFile("public/pictures/"+req.params.id+".png", base64Data, 'base64', function(err) {
+            if(err)
+                console.log(err);
+        });
+    }
     oAuth.updateUser(req.params.id, req.body, function(err, user) {
         if(err) {
             res.status(500).send({error: err});

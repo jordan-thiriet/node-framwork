@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var oauthserver = require('oauth2-server');
 var mongoose = require('mongoose');
+var path = require('path');
 
 var config = require('./config.json');
 
@@ -40,6 +41,8 @@ app.oauth = oauthserver({
     accessTokenLifetime: config.tokenLifetime,
     debug: true
 });
+
+app.use('/public', express.static(__dirname + '/public'));
 
 
 app.all('/oauth/v2/token', app.oauth.grant());
